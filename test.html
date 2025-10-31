@@ -1,30 +1,393 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>视频播放</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频格式兼容性测试</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            background: #f0f0f0;
-            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0;
+        }
+        .controls {
+            padding: 25px;
+            background: #f8f9fa;
+            border-right: 1px solid #eaeaea;
+        }
+        .video-container {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #182848;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        .format-group {
+            margin-bottom: 25px;
+        }
+        .format-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4b6cb7;
+        }
+        .format-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .format-btn {
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+        }
+        .format-btn:hover {
+            border-color: #4b6cb7;
+            background: #f0f4ff;
+        }
+        .format-btn.active {
+            background: #4b6cb7;
+            color: white;
+            border-color: #4b6cb7;
+        }
+        .custom-url {
+            margin-top: 25px;
+        }
+        .url-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .test-btn {
+            width: 100%;
+            padding: 14px;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .test-btn:hover {
+            background: #3a5a9c;
         }
         video {
-            max-width: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
             border-radius: 8px;
+            background: #000;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .status h3 {
+            margin-bottom: 10px;
+            color: #182848;
+        }
+        .status-info {
+            font-size: 0.95rem;
+        }
+        .status-item {
+            margin-bottom: 8px;
+            display: flex;
+        }
+        .status-label {
+            font-weight: 600;
+            width: 120px;
+        }
+        .status-value {
+            flex: 1;
+        }
+        .compatibility-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .compatible {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .incompatible {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .unknown {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                border-right: none;
+                border-bottom: 1px solid #eaeaea;
+            }
+            .format-options {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <video controls>
-        <source src="VID_20250901_131224.mp4" type="video/mp4">
-        您的浏览器不支持HTML5视频播放
-    </video>
-</body>
+    <div class="container">
+        <header>
+            <h1>视频格式兼容性测试</h1>
+            <p class="subtitle">测试不同容器格式的播放兼容性</p>
+        </header>
+        
+        <div class="content">
+            <div class="controls">
+                <div class="format-group">
+                    <span class="format-label">容器格式</span>
+                    <div class="format-options">
+                        <div class="format-btn active" data-format="mp4">MP4</div>
+                        <div class="format-btn" data-format="webm">WebM</div>
+                        <div class="format-btn" data-format="ogg">OGG</div>
+                        <div class="format-btn" data-format="avi">AVI</div>
+                    </div>
+                </div>
+                
+                <div class="custom-url">
+                    <span class="format-label">自定义视频URL</span>
+                    <input type="text" class="url-input" placeholder="输入视频URL进行测试">
+                    <button class="test-btn">测试自定义视频</button>
+                </div>
+            </div>
+            
+            <div class="video-container">
+                <h2>视频播放器</h2>
+                <video id="videoPlayer" controls>
+                    您的浏览器不支持HTML5视频播放
+                </video>
+                
+                <div class="status">
+                    <h3>播放状态</h3>
+                    <div class="status-info">
+                        <div class="status-item">
+                            <span class="status-label">容器格式:</span>
+                            <span class="status-value" id="containerFormat">MP4</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">视频编码:</span>
+                            <span class="status-value" id="videoCodec">H.264</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">音频编码:</span>
+                            <span class="status-value" id="audioCodec">AAC</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">播放状态:</span>
+                            <span class="status-value" id="playStatus">准备测试</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">兼容性:</span>
+                            <span class="status-value">
+                                <span id="compatibility" class="compatibility-badge unknown">等待测试</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const formatBtns = document.querySelectorAll('.format-btn[data-format]');
+            const testBtn = document.querySelector('.test-btn');
+            const urlInput = document.querySelector('.url-input');
+            const containerFormatEl = document.getElementById('containerFormat');
+            const videoCodecEl = document.getElementById('videoCodec');
+            const audioCodecEl = document.getElementById('audioCodec');
+            const playStatusEl = document.getElementById('playStatus');
+            const compatibilityEl = document.getElementById('compatibility');
+            
+            let currentFormat = 'mp4';
+            
+            // 本地视频源映射 - 假设这些文件与HTML在同一目录下
+            const videoSources = {
+                'mp4': {
+                    // 实际使用时替换为您的本地文件名
+                    url: 'mp4-avc-aac.mp4',
+                    container: 'MP4',
+                    videoCodec: 'avc',
+                    audioCodec: 'aac',
+                    compatible: true
+                },
+                'webm': {
+                    // 实际使用时替换为您的本地文件名
+                    url: 'webm-avc-aac.webm',
+                    container: 'WebM',
+                    videoCodec: 'avc',
+                    audioCodec: 'aac',
+                    compatible: true
+                },
+            };
+            
+            // 格式按钮点击事件
+            formatBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    formatBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFormat = this.getAttribute('data-format');
+                    updateVideoSource();
+                });
+            });
+            
+            // 测试自定义URL
+            testBtn.addEventListener('click', function() {
+                const url = urlInput.value.trim();
+                if (url) {
+                    testCustomVideo(url);
+                } else {
+                    alert('请输入有效的视频URL');
+                }
+            });
+            
+            // 更新视频源
+            function updateVideoSource() {
+                const videoInfo = videoSources[currentFormat];
+                
+                containerFormatEl.textContent = videoInfo.container;
+                videoCodecEl.textContent = videoInfo.videoCodec;
+                audioCodecEl.textContent = videoInfo.audioCodec;
+                playStatusEl.textContent = '加载中...';
+                
+                // 更新兼容性显示
+                if (videoInfo.compatible) {
+                    compatibilityEl.textContent = '兼容';
+                    compatibilityEl.className = 'compatibility-badge compatible';
+                } else {
+                    compatibilityEl.textContent = '不兼容';
+                    compatibilityEl.className = 'compatibility-badge incompatible';
+                }
+                
+                videoPlayer.src = videoInfo.url;
+                videoPlayer.load();
+                
+                // 监听视频事件
+                videoPlayer.addEventListener('loadeddata', function() {
+                    playStatusEl.textContent = '已加载';
+                });
+                
+                videoPlayer.addEventListener('error', function() {
+                    playStatusEl.textContent = '加载失败';
+                    compatibilityEl.textContent = '不兼容';
+                    compatibilityEl.className = 'compatibility-badge incompatible';
+                });
+                
+                videoPlayer.addEventListener('waiting', function() {
+                    playStatusEl.textContent = '缓冲中...';
+                });
+                
+                videoPlayer.addEventListener('playing', function() {
+                    playStatusEl.textContent = '播放中';
+                });
+            }
+            
+            // 测试自定义视频
+            function testCustomVideo(url) {
+                containerFormatEl.textContent = '未知';
+                videoCodecEl.textContent = '未知';
+                audioCodecEl.textContent = '未知';
+                playStatusEl.textContent = '加载中...';
+                compatibilityEl.textContent = '测试中...';
+                compatibilityEl.className = 'compatibility-badge unknown';
+                
+                videoPlayer.src = url;
+                videoPlayer.load();
+                
+                // 监听视频事件
+                videoPlayer.addEventListener('loadeddata', function() {
+                    playStatusEl.textContent = '已加载';
+                    
+                    // 尝试从URL猜测格式
+                    const extension = url.split('.').pop().toLowerCase();
+                    if (extension === 'mp4') {
+                        containerFormatEl.textContent = 'MP4';
+                        videoCodecEl.textContent = '未知 (可能是H.264/H.265)';
+                        audioCodecEl.textContent = '未知 (可能是AAC)';
+                    } else if (extension === 'webm') {
+                        containerFormatEl.textContent = 'WebM';
+                        videoCodecEl.textContent = '未知 (可能是VP8/VP9)';
+                        audioCodecEl.textContent = '未知 (可能是Vorbis/Opus)';
+                    } else if (extension === 'ogg' || extension === 'ogv') {
+                        containerFormatEl.textContent = 'OGG';
+                        videoCodecEl.textContent = '未知 (可能是Theora)';
+                        audioCodecEl.textContent = '未知 (可能是Vorbis)';
+                    } else if (extension === 'avi') {
+                        containerFormatEl.textContent = 'AVI';
+                        videoCodecEl.textContent = '未知';
+                        audioCodecEl.textContent = '未知';
+                    }
+                    
+                    compatibilityEl.textContent = '兼容';
+                    compatibilityEl.className = 'compatibility-badge compatible';
+                });
+                
+                videoPlayer.addEventListener('error', function() {
+                    playStatusEl.textContent = '加载失败';
+                    compatibilityEl.textContent = '不兼容';
+                    compatibilityEl.className = 'compatibility-badge incompatible';
+                });
+            }
+            
+            // 初始化
+            updateVideoSource();
+        });
+    </script>
+</body>
 </html>

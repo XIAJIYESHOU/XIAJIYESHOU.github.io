@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视频格式兼容性测试</title>
+    <title>视频容器格式兼容性测试</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -27,6 +27,7 @@
             color: white;
             padding: 25px 30px;
             text-align: center;
+            position: relative;
         }
         h1 {
             font-size: 2.2rem;
@@ -35,6 +36,23 @@
         .subtitle {
             font-size: 1.1rem;
             opacity: 0.9;
+        }
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
         .content {
             display: grid;
@@ -183,7 +201,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>视频格式兼容性测试</h1>
+            <button class="back-btn" onclick="window.location.href='index.html'">← 返回主页</button>
+            <h1>视频容器格式兼容性测试</h1>
             <p class="subtitle">测试不同容器格式的播放兼容性</p>
         </header>
         
@@ -257,25 +276,35 @@
             
             let currentFormat = 'mp4';
             
-            // 本地视频源映射 - 假设这些文件与HTML在同一目录下
+            // 本地视频源映射 - 只存储文件名
             const videoSources = {
-                'mp4': {
-                    // 实际使用时替换为您的本地文件名
-                    url: 'mp4-avc-aac.mp4',
-                    container: 'MP4',
-                    videoCodec: 'avc',
-                    audioCodec: 'aac',
-                    compatible: true
-                },
-                'webm': {
-                    // 实际使用时替换为您的本地文件名
-                    url: 'webm-avc-aac.webm',
-                    container: 'WebM',
-                    videoCodec: 'avc',
-                    audioCodec: 'aac',
-                    compatible: true
-                },
+                'mp4': 'mp4-h264-aac.mp4',
+                'webm': 'webm-vp8-opus.webm',
             };
+            
+            // 从文件名解析格式信息的函数
+            function parseFormatInfo(filename) {
+                // 移除文件扩展名
+                const nameWithoutExt = filename.split('.').slice(0, -1).join('.');
+                
+                // 按"-"分割文件名
+                const parts = nameWithoutExt.split('-');
+                
+                if (parts.length >= 3) {
+                    return {
+                        container: parts[0].toUpperCase(),
+                        videoCodec: parts[1].toUpperCase(),
+                        audioCodec: parts[2].toUpperCase()
+                    };
+                } else {
+                    // 如果文件名不符合格式，返回默认值
+                    return {
+                        container: currentFormat.toUpperCase(),
+                        videoCodec: '未知',
+                        audioCodec: '未知'
+                    };
+                }
+            }
             
             // 格式按钮点击事件
             formatBtns.forEach(btn => {
@@ -299,28 +328,28 @@
             
             // 更新视频源
             function updateVideoSource() {
-                const videoInfo = videoSources[currentFormat];
+                const filename = videoSources[currentFormat];
                 
-                containerFormatEl.textContent = videoInfo.container;
-                videoCodecEl.textContent = videoInfo.videoCodec;
-                audioCodecEl.textContent = videoInfo.audioCodec;
+                // 从文件名解析格式信息
+                const formatInfo = parseFormatInfo(filename);
+                
+                containerFormatEl.textContent = formatInfo.container;
+                videoCodecEl.textContent = formatInfo.videoCodec;
+                audioCodecEl.textContent = formatInfo.audioCodec;
                 playStatusEl.textContent = '加载中...';
                 
                 // 更新兼容性显示
-                if (videoInfo.compatible) {
-                    compatibilityEl.textContent = '兼容';
-                    compatibilityEl.className = 'compatibility-badge compatible';
-                } else {
-                    compatibilityEl.textContent = '不兼容';
-                    compatibilityEl.className = 'compatibility-badge incompatible';
-                }
+                compatibilityEl.textContent = '测试中...';
+                compatibilityEl.className = 'compatibility-badge unknown';
                 
-                videoPlayer.src = videoInfo.url;
+                videoPlayer.src = filename;
                 videoPlayer.load();
                 
                 // 监听视频事件
                 videoPlayer.addEventListener('loadeddata', function() {
                     playStatusEl.textContent = '已加载';
+                    compatibilityEl.textContent = '兼容';
+                    compatibilityEl.className = 'compatibility-badge compatible';
                 });
                 
                 videoPlayer.addEventListener('error', function() {
@@ -354,25 +383,10 @@
                 videoPlayer.addEventListener('loadeddata', function() {
                     playStatusEl.textContent = '已加载';
                     
-                    // 尝试从URL猜测格式
-                    const extension = url.split('.').pop().toLowerCase();
-                    if (extension === 'mp4') {
-                        containerFormatEl.textContent = 'MP4';
-                        videoCodecEl.textContent = '未知 (可能是H.264/H.265)';
-                        audioCodecEl.textContent = '未知 (可能是AAC)';
-                    } else if (extension === 'webm') {
-                        containerFormatEl.textContent = 'WebM';
-                        videoCodecEl.textContent = '未知 (可能是VP8/VP9)';
-                        audioCodecEl.textContent = '未知 (可能是Vorbis/Opus)';
-                    } else if (extension === 'ogg' || extension === 'ogv') {
-                        containerFormatEl.textContent = 'OGG';
-                        videoCodecEl.textContent = '未知 (可能是Theora)';
-                        audioCodecEl.textContent = '未知 (可能是Vorbis)';
-                    } else if (extension === 'avi') {
-                        containerFormatEl.textContent = 'AVI';
-                        videoCodecEl.textContent = '未知';
-                        audioCodecEl.textContent = '未知';
-                    }
+                    // 不尝试从URL猜测格式，直接显示未知
+                    containerFormatEl.textContent = '未知';
+                    videoCodecEl.textContent = '未知';
+                    audioCodecEl.textContent = '未知';
                     
                     compatibilityEl.textContent = '兼容';
                     compatibilityEl.className = 'compatibility-badge compatible';

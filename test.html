@@ -210,11 +210,8 @@
             <div class="controls">
                 <div class="format-group">
                     <span class="format-label">容器格式</span>
-                    <div class="format-options">
-                        <div class="format-btn active" data-format="mp4">MP4</div>
-                        <div class="format-btn" data-format="webm">WebM</div>
-                        <div class="format-btn" data-format="ogg">OGG</div>
-                        <div class="format-btn" data-format="avi">AVI</div>
+                    <div class="format-options" id="formatOptions">
+                        <!-- 动态生成的格式按钮将在这里 -->
                     </div>
                 </div>
                 
@@ -265,7 +262,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const videoPlayer = document.getElementById('videoPlayer');
-            const formatBtns = document.querySelectorAll('.format-btn[data-format]');
+            const formatOptionsContainer = document.getElementById('formatOptions');
             const testBtn = document.querySelector('.test-btn');
             const urlInput = document.querySelector('.url-input');
             const containerFormatEl = document.getElementById('containerFormat');
@@ -274,12 +271,12 @@
             const playStatusEl = document.getElementById('playStatus');
             const compatibilityEl = document.getElementById('compatibility');
             
-            let currentFormat = 'mp4';
+            let currentFormat = '';
             
             // 本地视频源映射 - 只存储文件名
             const videoSources = {
-                'mp4': 'mp4-avc-aac.mp4',
-                'webm': 'webm-vp8-opus.webm',
+                'mp4': 'mp4-h264-aac.mp4',
+                'webm': 'webm-vp8-vorbis.webm',
             };
             
             // 从文件名解析格式信息的函数
@@ -306,15 +303,45 @@
                 }
             }
             
-            // 格式按钮点击事件
-            formatBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    formatBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFormat = this.getAttribute('data-format');
-                    updateVideoSource();
+            // 动态生成格式按钮
+            function generateFormatButtons() {
+                // 清空容器
+                formatOptionsContainer.innerHTML = '';
+                
+                // 获取所有格式键
+                const formats = Object.keys(videoSources);
+                
+                // 为每个格式创建按钮
+                formats.forEach((format, index) => {
+                    const button = document.createElement('div');
+                    button.className = `format-btn ${index === 0 ? 'active' : ''}`;
+                    button.setAttribute('data-format', format);
+                    button.textContent = format.toUpperCase();
+                    
+                    // 添加点击事件
+                    button.addEventListener('click', function() {
+                        // 移除所有按钮的active类
+                        document.querySelectorAll('.format-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        
+                        // 为当前按钮添加active类
+                        this.classList.add('active');
+                        
+                        // 更新当前格式
+                        currentFormat = this.getAttribute('data-format');
+                        updateVideoSource();
+                    });
+                    
+                    // 添加到容器
+                    formatOptionsContainer.appendChild(button);
+                    
+                    // 设置第一个格式为当前格式
+                    if (index === 0) {
+                        currentFormat = format;
+                    }
                 });
-            });
+            }
             
             // 测试自定义URL
             testBtn.addEventListener('click', function() {
@@ -400,9 +427,9 @@
             }
             
             // 初始化
+            generateFormatButtons();
             updateVideoSource();
         });
     </script>
 </body>
 </html>
-

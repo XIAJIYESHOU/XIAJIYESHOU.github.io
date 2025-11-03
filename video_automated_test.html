@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动化视频格式测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            padding: 25px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .test-btn {
+            padding: 14px 25px;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .test-btn:hover {
+            background: #3a5a9c;
+        }
+        .test-btn.export {
+            background: #28a745;
+        }
+        .test-btn.export:hover {
+            background: #218838;
+        }
+        .test-btn.stop {
+            background: #dc3545;
+        }
+        .test-btn.stop:hover {
+            background: #c82333;
+        }
+        .test-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .test-type-btn {
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+        }
+        .test-type-btn:hover {
+            border-color: #4b6cb7;
+            background: #f0f4ff;
+        }
+        .test-type-btn.active {
+            background: #4b6cb7;
+            color: white;
+            border-color: #4b6cb7;
+        }
+        .progress-container {
+            margin: 25px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4b6cb7, #182848);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #182848;
+        }
+        .test-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #182848;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        h3 {
+            margin-bottom: 15px;
+            color: #182848;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4b6cb7;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .results-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .result-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #e0e0e0;
+        }
+        .result-item.compatible {
+            border-left-color: #28a745;
+        }
+        .result-item.incompatible {
+            border-left-color: #dc3545;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .result-name {
+            font-weight: 600;
+        }
+        .result-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .compatibility-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .compatible {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .incompatible {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .unknown {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #4b6cb7;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .test-type-info {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .test-results {
+                grid-template-columns: 1fr;
+            }
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="back-btn" onclick="window.location.href='format_test.html'">← 返回主页</button>
+            <h1>自动化视频格式测试</h1>
+            <p class="subtitle">一键测试所有视频格式兼容性</p>
+        </header>
+        
+        <div class="content">
+            <div class="info-box">
+                <p>选择测试类型后点击开始测试按钮，系统将自动测试所有视频格式的兼容性并生成详细报告。</p>
+            </div>
+            
+            <div class="test-type-selector">
+                <div class="test-type-btn active" data-type="container">容器格式测试</div>
+                <div class="test-type-btn" data-type="codec">编码格式测试</div>
+                <div class="test-type-btn" data-type="all">全部测试</div>
+            </div>
+            
+            <div class="test-type-info" id="testTypeInfo">
+                当前选择：<strong>容器格式测试</strong> - 测试不同容器格式（MP4、WebM、MKV等）的播放兼容性
+            </div>
+            
+            <div class="controls">
+                <button class="test-btn" id="startTestBtn">开始自动化测试</button>
+                <button class="test-btn export" id="exportReportBtn" style="display: none;">导出测试报告</button>
+                <button class="test-btn stop" id="stopTestBtn" style="display: none;">停止测试</button>
+            </div>
+            
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+                <div id="currentTest">准备开始测试...</div>
+            </div>
+            
+            <div class="test-results">
+                <div class="results-section">
+                    <h2>测试概要</h2>
+                    <div class="summary-stats" id="summaryStats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalTests">0</div>
+                            <div class="stat-label">总测试数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="passedTests">0</div>
+                            <div class="stat-label">通过</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="failedTests">0</div>
+                            <div class="stat-label">失败</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="successRate">0%</div>
+                            <div class="stat-label">成功率</div>
+                        </div>
+                    </div>
+                    
+                    <h3>详细测试结果</h3>
+                    <div class="results-list" id="detailedResults">
+                        <!-- 测试结果将动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <h2>兼容性分析</h2>
+                    <div id="compatibilityAnalysis">
+                        <p>测试完成后将显示兼容性分析报告。</p>
+                    </div>
+                    
+                    <h3>推荐格式</h3>
+                    <div id="recommendedFormats">
+                        <p>测试完成后将显示推荐使用的视频格式。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startTestBtn = document.getElementById('startTestBtn');
+            const exportReportBtn = document.getElementById('exportReportBtn');
+            const stopTestBtn = document.getElementById('stopTestBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const currentTestEl = document.getElementById('currentTest');
+            const detailedResults = document.getElementById('detailedResults');
+            const compatibilityAnalysis = document.getElementById('compatibilityAnalysis');
+            const recommendedFormats = document.getElementById('recommendedFormats');
+            const testTypeInfo = document.getElementById('testTypeInfo');
+            
+            // 测试类型选择
+            const testTypeBtns = document.querySelectorAll('.test-type-btn');
+            let selectedTestType = 'container';
+            
+            testTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    testTypeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedTestType = this.getAttribute('data-type');
+                    
+                    // 更新测试类型说明
+                    let typeInfo = '';
+                    switch(selectedTestType) {
+                        case 'container':
+                            typeInfo = '容器格式测试 - 测试不同容器格式（MP4、WebM、MKV等）的播放兼容性';
+                            break;
+                        case 'codec':
+                            typeInfo = '编码格式测试 - 测试不同视频编码格式（H.264、VP9、AV1等）的播放兼容性';
+                            break;
+                        case 'all':
+                            typeInfo = '全部测试 - 同时测试容器格式和编码格式的兼容性';
+                            break;
+                    }
+                    testTypeInfo.innerHTML = `当前选择：<strong>${typeInfo.split(' - ')[0]}</strong> - ${typeInfo.split(' - ')[1]}`;
+                });
+            });
+            
+            // 容器格式测试文件
+            const containerTestFiles = [
+                'mp4-avc-aac.mp4',
+                'webm-vp8-opus.webm',
+                'flv-avc-aac.flv',
+                'avi-mpeg4-mp3.avi',
+                'gif-none-none.gif',
+                'm4v-avc-aac.m4v',
+                'mkv-avc-aac.mkv',
+                'mov-avc-aac.mov',
+                'mpegps-mpeg2-mp2.mpg',
+                'mpegts-avc-aac.ts',
+                'ogv-vp8-vorbis.ogv',
+                'wmv-wmv2-wmav2.wmv',
+            ];
+            
+            // 编码格式测试文件
+            const codecTestFiles = [
+                'mp4-avc-aac.mp4',
+                'mp4-hevc-aac.mp4',
+                'mp4-mpeg4-aac.mp4',
+                'webm-vp8-opus.webm',
+                'webm-vp9-opus.webm',
+                'webm-av1-opus.webm',
+                'mpegps-mpeg2-mp2.mpg',
+                'wmv-wmv2-wmav2.wmv'
+            ];
+            
+            let testQueue = [];
+            let currentTestIndex = 0;
+            let testResults = [];
+            let isTesting = false;
+            
+            startTestBtn.addEventListener('click', startAutomatedTest);
+            stopTestBtn.addEventListener('click', stopAutomatedTest);
+            exportReportBtn.addEventListener('click', exportTestReport);
+            
+            function startAutomatedTest() {
+                isTesting = true;
+                startTestBtn.style.display = 'none';
+                exportReportBtn.style.display = 'none';
+                stopTestBtn.style.display = 'inline-block';
+                progressContainer.style.display = 'block';
+                
+                // 根据选择的测试类型确定测试队列
+                switch(selectedTestType) {
+                    case 'container':
+                        testQueue = [...containerTestFiles];
+                        break;
+                    case 'codec':
+                        testQueue = [...codecTestFiles];
+                        break;
+                    case 'all':
+                        testQueue = [...containerTestFiles, ...codecTestFiles];
+                        // 去重
+                        testQueue = [...new Set(testQueue)];
+                        break;
+                }
+                
+                currentTestIndex = 0;
+                testResults = [];
+                detailedResults.innerHTML = '';
+                compatibilityAnalysis.innerHTML = '<p>测试进行中...</p>';
+                recommendedFormats.innerHTML = '<p>测试进行中...</p>';
+                
+                updateSummaryStats();
+                runNextTest();
+            }
+            
+            function runNextTest() {
+                if (!isTesting || currentTestIndex >= testQueue.length) {
+                    finishTesting();
+                    return;
+                }
+                
+                const testFile = testQueue[currentTestIndex];
+                const progress = ((currentTestIndex + 1) / testQueue.length) * 100;
+                
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${Math.round(progress)}%`;
+                currentTestEl.textContent = `正在测试: ${testFile}`;
+                
+                testVideoFormat(testFile).then(result => {
+                    testResults.push(result);
+                    displayTestResult(result);
+                    updateSummaryStats();
+                    
+                    currentTestIndex++;
+                    setTimeout(runNextTest, 800); // 0.8秒延迟执行下一个测试
+                });
+            }
+            
+            function testVideoFormat(filename) {
+                return new Promise((resolve) => {
+                    const video = document.createElement('video');
+                    const formatInfo = parseFilename(filename);
+                    
+                    video.src = filename;
+                    video.preload = 'auto';
+                    
+                    let result = {
+                        filename: filename,
+                        format: formatInfo,
+                        compatible: false,
+                        loadTime: 0,
+                        error: null,
+                        canPlay: false
+                    };
+                    
+                    const startTime = Date.now();
+                    let timeoutId;
+                    
+                    const cleanup = () => {
+                        video.removeEventListener('loadeddata', onLoaded);
+                        video.removeEventListener('error', onError);
+                        video.removeEventListener('canplay', onCanPlay);
+                        clearTimeout(timeoutId);
+                    };
+                    
+                    const onLoaded = () => {
+                        cleanup();
+                        result.compatible = true;
+                        result.loadTime = Date.now() - startTime;
+                        resolve(result);
+                    };
+                    
+                    const onCanPlay = () => {
+                        result.canPlay = true;
+                    };
+                    
+                    const onError = (e) => {
+                        cleanup();
+                        result.compatible = false;
+                        result.loadTime = Date.now() - startTime;
+                        result.error = video.error ? video.error.message : '未知错误';
+                        resolve(result);
+                    };
+                    
+                    video.addEventListener('loadeddata', onLoaded);
+                    video.addEventListener('error', onError);
+                    video.addEventListener('canplay', onCanPlay);
+                    
+                    // 设置超时
+                    timeoutId = setTimeout(() => {
+                        cleanup();
+                        result.compatible = false;
+                        result.loadTime = Date.now() - startTime;
+                        result.error = '加载超时 (8秒)';
+                        resolve(result);
+                    }, 8000);
+                    
+                    video.load();
+                });
+            }
+            
+            function parseFilename(filename) {
+                const nameWithoutExt = filename.split('.').slice(0, -1).join('.');
+                const parts = nameWithoutExt.split('-');
+                
+                return {
+                    container: parts[0]?.toUpperCase() || '未知',
+                    videoCodec: parts[1]?.toUpperCase() || '未知',
+                    audioCodec: parts[2]?.toUpperCase() || '未知'
+                };
+            }
+            
+            function displayTestResult(result) {
+                const resultElement = document.createElement('div');
+                resultElement.className = `result-item ${result.compatible ? 'compatible' : 'incompatible'}`;
+                
+                const badgeClass = result.compatible ? 'compatible' : 'incompatible';
+                const badgeText = result.compatible ? '兼容' : '不兼容';
+                
+                resultElement.innerHTML = `
+                    <div class="result-header">
+                        <span class="result-name">${result.filename}</span>
+                        <span class="compatibility-badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="result-details">
+                        ${result.format.container} | ${result.format.videoCodec} | ${result.format.audioCodec}
+                        ${result.error ? `<br><span style="color: #dc3545;">错误: ${result.error}</span>` : ''}
+                        ${result.loadTime ? `<br>加载时间: ${result.loadTime}ms` : ''}
+                    </div>
+                `;
+                
+                detailedResults.appendChild(resultElement);
+            }
+            
+            function updateSummaryStats() {
+                const total = testResults.length;
+                const passed = testResults.filter(r => r.compatible).length;
+                const failed = total - passed;
+                const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+                
+                document.getElementById('totalTests').textContent = total;
+                document.getElementById('passedTests').textContent = passed;
+                document.getElementById('failedTests').textContent = failed;
+                document.getElementById('successRate').textContent = `${successRate}%`;
+            }
+            
+            function finishTesting() {
+                isTesting = false;
+                stopTestBtn.style.display = 'none';
+                exportReportBtn.style.display = 'inline-block';
+                startTestBtn.style.display = 'inline-block';
+                startTestBtn.textContent = '重新测试';
+                
+                progressFill.style.width = '100%';
+                progressText.textContent = '100%';
+                currentTestEl.textContent = '测试完成！';
+                
+                generateAnalysisReport();
+            }
+            
+            function stopAutomatedTest() {
+                isTesting = false;
+                finishTesting();
+            }
+            
+            function generateAnalysisReport() {
+                const compatibleFormats = testResults.filter(r => r.compatible);
+                const incompatibleFormats = testResults.filter(r => !r.compatible);
+                
+                // 兼容性分析
+                let analysisHTML = `
+                    <h4>测试完成概况</h4>
+                    <p>总共测试了 <strong>${testResults.length}</strong> 种视频格式，其中：</p>
+                    <ul>
+                        <li><strong>${compatibleFormats.length}</strong> 种格式兼容</li>
+                        <li><strong>${incompatibleFormats.length}</strong> 种格式不兼容</li>
+                        <li>兼容率: <strong>${Math.round((compatibleFormats.length / testResults.length) * 100)}%</strong></li>
+                    </ul>
+                `;
+                
+                if (incompatibleFormats.length > 0) {
+                    analysisHTML += `
+                        <h4>不兼容格式</h4>
+                        <ul>
+                    `;
+                    incompatibleFormats.forEach(format => {
+                        analysisHTML += `<li>${format.filename} - ${format.error || '未知错误'}</li>`;
+                    });
+                    analysisHTML += `</ul>`;
+                }
+                
+                compatibilityAnalysis.innerHTML = analysisHTML;
+                
+                // 推荐格式
+                const recommended = compatibleFormats
+                    .filter(f => 
+                        f.format.container === 'MP4' && 
+                        (f.format.videoCodec === 'AVC' || f.format.videoCodec === 'HEVC') &&
+                        f.format.audioCodec === 'AAC'
+                    )
+                    .sort((a, b) => a.loadTime - b.loadTime);
+                
+                let recommendedHTML = `
+                    <p>基于测试结果，推荐使用以下格式以获得最佳兼容性：</p>
+                    <ul>
+                `;
+                
+                if (recommended.length > 0) {
+                    recommended.slice(0, 3).forEach(format => {
+                        recommendedHTML += `
+                            <li>
+                                <strong>${format.filename}</strong><br>
+                                <small>${format.format.container} | ${format.format.videoCodec} | ${format.format.audioCodec}</small>
+                            </li>
+                        `;
+                    });
+                } else {
+                    // 如果没有MP4格式，推荐其他兼容格式
+                    const fallbackRecommended = compatibleFormats
+                        .sort((a, b) => a.loadTime - b.loadTime)
+                        .slice(0, 3);
+                    
+                    if (fallbackRecommended.length > 0) {
+                        fallbackRecommended.forEach(format => {
+                            recommendedHTML += `
+                                <li>
+                                    <strong>${format.filename}</strong><br>
+                                    <small>${format.format.container} | ${format.format.videoCodec} | ${format.format.audioCodec}</small>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        recommendedHTML += `<li>暂无推荐格式，请检查测试结果</li>`;
+                    }
+                }
+                
+                recommendedHTML += `</ul>`;
+                recommendedFormats.innerHTML = recommendedHTML;
+            }
+            
+            function exportTestReport() {
+                const report = generateTestReport();
+                const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `视频格式测试报告_${selectedTestType}_${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            
+            function generateTestReport() {
+                const now = new Date();
+                let report = `视频格式兼容性测试报告\n`;
+                report += `测试类型: ${selectedTestType}\n`;
+                report += `生成时间: ${now.toLocaleString()}\n`;
+                report += `浏览器: ${navigator.userAgent}\n`;
+                report += `========================================\n\n`;
+                
+                report += `测试概要:\n`;
+                report += `总测试数: ${testResults.length}\n`;
+                report += `兼容格式: ${testResults.filter(r => r.compatible).length}\n`;
+                report += `不兼容格式: ${testResults.filter(r => !r.compatible).length}\n`;
+                report += `兼容率: ${Math.round((testResults.filter(r => r.compatible).length / testResults.length) * 100)}%\n\n`;
+                
+                report += `详细测试结果:\n`;
+                testResults.forEach((result, index) => {
+                    report += `${index + 1}. ${result.filename}\n`;
+                    report += `   容器格式: ${result.format.container}\n`;
+                    report += `   视频编码: ${result.format.videoCodec}\n`;
+                    report += `   音频编码: ${result.format.audioCodec}\n`;
+                    report += `   兼容性: ${result.compatible ? '✓ 兼容' : '✗ 不兼容'}\n`;
+                    report += `   加载时间: ${result.loadTime}ms\n`;
+                    if (result.error) {
+                        report += `   错误信息: ${result.error}\n`;
+                    }
+                    report += '\n';
+                });
+                
+                const compatibleFormats = testResults.filter(r => r.compatible);
+                if (compatibleFormats.length > 0) {
+                    report += `推荐格式:\n`;
+                    const recommended = compatibleFormats
+                        .filter(f => f.format.container === 'MP4' && f.format.audioCodec === 'AAC')
+                        .slice(0, 3);
+                    
+                    if (recommended.length > 0) {
+                        recommended.forEach(format => {
+                            report += `   • ${format.filename} (${format.format.videoCodec})\n`;
+                        });
+                    } else {
+                        compatibleFormats
+                            .sort((a, b) => a.loadTime - b.loadTime)
+                            .slice(0, 3)
+                            .forEach(format => {
+                                report += `   • ${format.filename} (${format.format.container}/${format.format.videoCodec})\n`;
+                            });
+                    }
+                }
+                
+                return report;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频格式测试套件</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0;
+        }
+        .controls {
+            padding: 25px;
+            background: #f8f9fa;
+            border-right: 1px solid #eaeaea;
+        }
+        .video-container {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #182848;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        .format-group {
+            margin-bottom: 25px;
+        }
+        .format-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4b6cb7;
+        }
+        .format-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .format-btn {
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+        }
+        .format-btn:hover {
+            border-color: #4b6cb7;
+            background: #f0f4ff;
+        }
+        .format-btn.active {
+            background: #4b6cb7;
+            color: white;
+            border-color: #4b6cb7;
+        }
+        .custom-url {
+            margin-top: 25px;
+        }
+        .url-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .test-btn {
+            width: 100%;
+            padding: 14px;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .test-btn:hover {
+            background: #3a5a9c;
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .status h3 {
+            margin-bottom: 10px;
+            color: #182848;
+        }
+        .status-info {
+            font-size: 0.95rem;
+        }
+        .status-item {
+            margin-bottom: 8px;
+            display: flex;
+        }
+        .status-label {
+            font-weight: 600;
+            width: 120px;
+        }
+        .status-value {
+            flex: 1;
+        }
+        .compatibility-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .compatible {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .incompatible {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .unknown {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        /* 主页特定样式 */
+        .home-content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .intro {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .test-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #eaeaea;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+        .test-card h3 {
+            color: #182848;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        .test-card p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .card-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #4b6cb7;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .card-btn:hover {
+            background: #3a5a9c;
+        }
+        
+        /* 编码测试页特定样式 */
+        .codec-group {
+            margin-bottom: 25px;
+        }
+        .codec-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                border-right: none;
+                border-bottom: 1px solid #eaeaea;
+            }
+            .format-options {
+                grid-template-columns: 1fr;
+            }
+            .test-cards {
+                grid-template-columns: 1fr;
+            }
+            .codec-options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>视频格式测试套件</h1>
+            <p class="subtitle">测试不同视频格式的播放兼容性</p>
+        </header>
+        
+        <div class="home-content">
+            <div class="intro">
+                <p>欢迎使用视频格式测试套件！这个工具可以帮助您测试不同视频容器格式和编码格式在浏览器中的兼容性。</p>
+                <p>选择下方测试类型开始，或使用自定义URL测试您自己的视频文件。</p>
+            </div>
+            
+            <div class="test-cards">
+                <!-- 在现有的test-cards div中替换内容 -->
+                <div class="test-cards">
+                    <div class="test-card">
+                        <h3>容器格式测试</h3>
+                        <p>测试不同视频容器格式（如MP4、WebM、MKV等）在浏览器中的播放兼容性。</p>
+                        <a href="video_container_format_test.html" class="card-btn">开始测试</a>
+                    </div>
+                    <div class="test-card">
+                        <h3>编码格式测试</h3>
+                        <p>测试不同视频编码格式（如H.264、VP9、AV1等）在浏览器中的播放兼容性。</p>
+                        <a href="video_codec_format_test.html" class="card-btn">开始测试</a>
+                    </div>
+                    <div class="test-card">
+                        <h3>API功能测试</h3>
+                        <p>测试HTML5视频相关API的功能和兼容性。</p>
+                        <a href="video_api_test.html" class="card-btn">开始测试</a>
+                    </div>
+                    <div class="test-card">
+                        <h3>自动化测试</h3>
+                        <p>一键测试所有视频格式的兼容性，自动生成详细测试报告。</p>
+                        <a href="video_automated_test.html" class="card-btn">开始测试</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -281,11 +281,16 @@
             // 视频源映射 - 只存储文件名
             const videoSources = {
                 'avc': 'mp4-avc-aac.mp4',
+                'hevc': 'mp4-hevc-aac.mp4',
+                'mpeg4': 'mp4-mpeg4-aac.mp4',
+                'mpeg2': 'mpegps-mpeg2-mp2.mpg',
                 'vp8': 'webm-vp8-opus.webm',
-                'mpeg': 'mpegps-mpeg2-mp2.mpg',
+                'vp9': 'webm-vp9-opus.webm',
+                'av1': 'webm-av1-opus.webm',
                 'wmv2': 'wmv-wmv2-wmav2.wmv',
+                'vvc': 'mp4-vvc-aac.mp4',
             };
-            
+                        
             // 从文件名解析格式信息的函数
             function parseFormatInfo(filename) {
                 // 移除文件扩展名

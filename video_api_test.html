@@ -182,9 +182,42 @@
             background: #f8f9fa;
             font-weight: 600;
         }
+        .results-section {
+            margin-bottom: 20px;
+        }
+        .results-section h4 {
+            margin: 20px 0 10px;
+            color: #182848;
+            font-size: 1.1rem;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4b6cb7;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
         @media (max-width: 768px) {
             .api-options {
                 grid-template-columns: 1fr;
+            }
+            .summary-stats {
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
@@ -209,18 +242,41 @@
                 <div class="status">
                     <h3>canPlayType测试结果</h3>
                     <div class="status-info">
-                        <table class="results-table" id="canPlayTypeResults">
-                            <thead>
-                                <tr>
-                                    <th>MIME类型</th>
-                                    <th>支持程度</th>
-                                    <th>状态</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- 结果将动态生成 -->
-                            </tbody>
-                        </table>
+                        <div class="summary-stats" id="canPlayTypeSummary">
+                            <!-- 统计信息将动态生成 -->
+                        </div>
+                        
+                        <div class="results-section">
+                            <h4>容器格式支持</h4>
+                            <table class="results-table" id="canPlayTypeContainerResults">
+                                <thead>
+                                    <tr>
+                                        <th>容器格式</th>
+                                        <th>MIME类型</th>
+                                        <th>支持状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 容器格式结果将动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="results-section">
+                            <h4>编码格式支持</h4>
+                            <table class="results-table" id="canPlayTypeCodecResults">
+                                <thead>
+                                    <tr>
+                                        <th>编码格式</th>
+                                        <th>MIME类型</th>
+                                        <th>支持状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 编码格式结果将动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -240,46 +296,42 @@
                             <span class="status-label">SourceBuffer支持:</span>
                             <span class="status-value" id="sourceBufferSupport">检测中...</span>
                         </div>
-                        <div class="status-item">
-                            <span class="status-label">IsTypeSupported:</span>
-                            <span class="status-value" id="isTypeSupported">检测中...</span>
+                        
+                        <div class="summary-stats" id="mediaSourceSummary">
+                            <!-- 统计信息将动态生成 -->
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="test-section">
-                <h2>视频编解码器支持测试</h2>
-                <button class="test-btn" id="codecSupportTestBtn">测试编解码器支持</button>
-                
-                <div class="status">
-                    <h3>编解码器支持结果</h3>
-                    <div class="status-info">
-                        <table class="results-table" id="codecSupportResults">
-                            <thead>
-                                <tr>
-                                    <th>编解码器</th>
-                                    <th>MIME类型</th>
-                                    <th>canPlayType</th>
-                                    <th>MediaSource</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- 结果将动态生成 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="test-section">
-                <h2>完整API功能测试</h2>
-                <button class="test-btn" id="fullApiTestBtn">执行完整API测试</button>
-                
-                <div class="status">
-                    <h3>完整测试结果</h3>
-                    <div class="status-info" id="fullApiResults">
-                        <!-- 完整测试结果将显示在这里 -->
+                        
+                        <div class="results-section">
+                            <h4>视频编码格式支持</h4>
+                            <table class="results-table" id="codecSupportTable">
+                                <thead>
+                                    <tr>
+                                        <th>编码格式</th>
+                                        <th>MIME类型</th>
+                                        <th>支持状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 编码格式测试结果将动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="results-section">
+                            <h4>容器格式支持</h4>
+                            <table class="results-table" id="containerSupportTable">
+                                <thead>
+                                    <tr>
+                                        <th>容器格式</th>
+                                        <th>MIME类型</th>
+                                        <th>支持状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 容器格式测试结果将动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -290,8 +342,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const canPlayTypeTestBtn = document.getElementById('canPlayTypeTestBtn');
             const mediaSourceTestBtn = document.getElementById('mediaSourceTestBtn');
-            const codecSupportTestBtn = document.getElementById('codecSupportTestBtn');
-            const fullApiTestBtn = document.getElementById('fullApiTestBtn');
             
             // canPlayType测试
             canPlayTypeTestBtn.addEventListener('click', testCanPlayType);
@@ -299,63 +349,191 @@
             // MediaSource API测试
             mediaSourceTestBtn.addEventListener('click', testMediaSourceAPI);
             
-            // 编解码器支持测试
-            codecSupportTestBtn.addEventListener('click', testCodecSupport);
+            // 视频编码格式定义
+            const videoCodecs = {
+                'avc': {
+                    mime: 'video/mp4; codecs="avc1.42E01E"',
+                    name: 'H.264/AVC'
+                },
+                'hevc': {
+                    mime: 'video/mp4; codecs="hev1.1.6.L93.B0"',
+                    name: 'H.265/HEVC'
+                },
+                'mpeg4': {
+                    mime: 'video/mp4; codecs="mp4v.20.8"',
+                    name: 'MPEG-4'
+                },
+                'mpeg2': {
+                    mime: 'video/mpeg; codecs="mp2v"',
+                    name: 'MPEG-2'
+                },
+                'vp8': {
+                    mime: 'video/webm; codecs="vp8"',
+                    name: 'VP8'
+                },
+                'vp9': {
+                    mime: 'video/webm; codecs="vp9"',
+                    name: 'VP9'
+                },
+                'av1': {
+                    mime: 'video/webm; codecs="av1"',
+                    name: 'AV1'
+                },
+                'wmv2': {
+                    mime: 'video/x-ms-wmv; codecs="WMV2"',
+                    name: 'WMV2'
+                },
+                'vvc': {
+                    mime: 'video/mp4; codecs="vvc1.1.6.L93.B0"',
+                    name: 'H.266/VVC'
+                }
+            };
             
-            // 完整API测试
-            fullApiTestBtn.addEventListener('click', testFullAPI);
+            // 容器格式定义
+            const containerFormats = {
+                'mp4': {
+                    mime: 'video/mp4',
+                    name: 'MP4'
+                },
+                'webm': {
+                    mime: 'video/webm',
+                    name: 'WebM'
+                },
+                'flv': {
+                    mime: 'video/x-flv',
+                    name: 'FLV'
+                },
+                'gif': {
+                    mime: 'image/gif',
+                    name: 'GIF'
+                },
+                'm4v': {
+                    mime: 'video/x-m4v',
+                    name: 'M4V'
+                },
+                'mkv': {
+                    mime: 'video/x-matroska',
+                    name: 'MKV'
+                },
+                'mov': {
+                    mime: 'video/quicktime',
+                    name: 'MOV'
+                },
+                'mpegps': {
+                    mime: 'video/mpeg',
+                    name: 'MPEG-PS'
+                },
+                'ts': {
+                    mime: 'video/mp2t',
+                    name: 'MPEG-TS'
+                },
+                'wmv': {
+                    mime: 'video/x-ms-wmv',
+                    name: 'WMV'
+                },
+                'ogv': {
+                    mime: 'video/ogg',
+                    name: 'OGV'
+                }
+            };
             
             function testCanPlayType() {
                 const video = document.createElement('video');
-                const testFormats = [
-                    { mime: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', name: 'H.264 + AAC' },
-                    { mime: 'video/mp4; codecs="hev1.1.6.L93.B0"', name: 'H.265/HEVC' },
-                    { mime: 'video/mp4; codecs="vvc1.1.6.L93.B0"', name: 'H.266/VVC' },
-                    { mime: 'video/mp4; codecs="mp4v.20.8, mp4a.40.2"', name: 'MPEG-4' },
-                    { mime: 'video/mp4; codecs="mp4v.20.240, mp4a.40.2"', name: 'MPEG-4 AVC' },
-                    { mime: 'video/webm; codecs="vp8, vorbis"', name: 'VP8 + Vorbis' },
-                    { mime: 'video/webm; codecs="vp9, opus"', name: 'VP9 + Opus' },
-                    { mime: 'video/webm; codecs="av1, opus"', name: 'AV1 + Opus' },
-                    { mime: 'video/ogg; codecs="theora, vorbis"', name: 'Theora + Vorbis' },
-                    { mime: 'video/3gpp; codecs="mp4v.20.8, samr"', name: 'MPEG-4 + AMR' },
-                    { mime: 'video/x-ms-wmv; codecs="WMV2"', name: 'WMV2' },
-                    { mime: 'video/avi; codecs="mp4v.20.8, mp3"', name: 'MPEG-4 + MP3' }
-                ];
                 
-                const resultsBody = document.querySelector('#canPlayTypeResults tbody');
-                resultsBody.innerHTML = '';
+                // 测试容器格式支持
+                const containerResultsBody = document.querySelector('#canPlayTypeContainerResults tbody');
+                containerResultsBody.innerHTML = '';
                 
-                testFormats.forEach(format => {
-                    const result = video.canPlayType(format.mime);
-                    let statusBadge = '';
-                    let statusText = '';
+                let containerProbably = 0;
+                let containerMaybe = 0;
+                let containerNo = 0;
+                
+                Object.keys(containerFormats).forEach(containerKey => {
+                    const container = containerFormats[containerKey];
+                    const result = video.canPlayType(container.mime);
                     
-                    switch(result) {
-                        case 'probably':
-                            statusBadge = 'compatible';
-                            statusText = '很可能支持';
-                            break;
-                        case 'maybe':
-                            statusBadge = 'unknown';
-                            statusText = '可能支持';
-                            break;
-                        case '':
-                            statusBadge = 'incompatible';
-                            statusText = '不支持';
-                            break;
-                        default:
-                            statusBadge = 'unknown';
-                            statusText = result;
-                    }
+                    const { statusBadge, statusText } = getCanPlayTypeStatus(result);
+                    
+                    // 统计结果
+                    if (result === 'probably') containerProbably++;
+                    else if (result === 'maybe') containerMaybe++;
+                    else containerNo++;
                     
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${format.name}</td>
-                        <td><code>${format.mime}</code></td>
+                        <td>${container.name}</td>
+                        <td><code>${container.mime}</code></td>
                         <td><span class="compatibility-badge ${statusBadge}">${statusText}</span></td>
                     `;
-                    resultsBody.appendChild(row);
+                    containerResultsBody.appendChild(row);
                 });
+                
+                // 测试编码格式支持
+                const codecResultsBody = document.querySelector('#canPlayTypeCodecResults tbody');
+                codecResultsBody.innerHTML = '';
+                
+                let codecProbably = 0;
+                let codecMaybe = 0;
+                let codecNo = 0;
+                
+                Object.keys(videoCodecs).forEach(codecKey => {
+                    const codec = videoCodecs[codecKey];
+                    const result = video.canPlayType(codec.mime);
+                    
+                    const { statusBadge, statusText } = getCanPlayTypeStatus(result);
+                    
+                    // 统计结果
+                    if (result === 'probably') codecProbably++;
+                    else if (result === 'maybe') codecMaybe++;
+                    else codecNo++;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${codec.name}</td>
+                        <td><code>${codec.mime}</code></td>
+                        <td><span class="compatibility-badge ${statusBadge}">${statusText}</span></td>
+                    `;
+                    codecResultsBody.appendChild(row);
+                });
+                
+                // 更新统计信息
+                const totalContainer = Object.keys(containerFormats).length;
+                const totalCodec = Object.keys(videoCodecs).length;
+                
+                document.getElementById('canPlayTypeSummary').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${totalContainer}</div>
+                        <div class="stat-label">容器格式总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${containerProbably}</div>
+                        <div class="stat-label">很可能支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${containerMaybe}</div>
+                        <div class="stat-label">可能支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${containerNo}</div>
+                        <div class="stat-label">不支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalCodec}</div>
+                        <div class="stat-label">编码格式总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${codecProbably}</div>
+                        <div class="stat-label">很可能支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${codecMaybe}</div>
+                        <div class="stat-label">可能支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${codecNo}</div>
+                        <div class="stat-label">不支持</div>
+                    </div>
+                `;
             }
             
             function testMediaSourceAPI() {
@@ -372,131 +550,135 @@
                     '<span class="compatibility-badge compatible">支持</span>' : 
                     '<span class="compatibility-badge incompatible">不支持</span>';
                 
-                // 测试IsTypeSupported
+                // 测试编码格式支持
+                const codecResultsBody = document.querySelector('#codecSupportTable tbody');
+                codecResultsBody.innerHTML = '';
+                
+                let codecSupported = 0;
+                let codecUnsupported = 0;
+                
                 if (mediaSourceSupport) {
-                    const mimeTypes = [
-                        'video/mp4; codecs="avc1.42E01E"',
-                        'video/mp4; codecs="hev1.1.6.L93.B0"',
-                        'video/webm; codecs="vp9"',
-                        'video/webm; codecs="av1"'
-                    ];
-                    
-                    let results = '';
-                    mimeTypes.forEach(mimeType => {
-                        const supported = MediaSource.isTypeSupported(mimeType);
-                        results += `${mimeType}: ${supported ? '支持' : '不支持'}<br>`;
+                    Object.keys(videoCodecs).forEach(codecKey => {
+                        const codec = videoCodecs[codecKey];
+                        const supported = MediaSource.isTypeSupported(codec.mime);
+                        
+                        // 统计结果
+                        if (supported) codecSupported++;
+                        else codecUnsupported++;
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${codec.name}</td>
+                            <td><code>${codec.mime}</code></td>
+                            <td><span class="compatibility-badge ${supported ? 'compatible' : 'incompatible'}">${supported ? '支持' : '不支持'}</span></td>
+                        `;
+                        codecResultsBody.appendChild(row);
                     });
-                    
-                    document.getElementById('isTypeSupported').innerHTML = results;
                 } else {
-                    document.getElementById('isTypeSupported').textContent = 'MediaSource不可用';
-                }
-            }
-            
-            function testCodecSupport() {
-                const video = document.createElement('video');
-                const codecs = [
-                    { name: 'H.264/AVC', mime: 'video/mp4; codecs="avc1.42E01E"' },
-                    { name: 'H.265/HEVC', mime: 'video/mp4; codecs="hev1.1.6.L93.B0"' },
-                    { name: 'H.266/VVC', mime: 'video/mp4; codecs="vvc1.1.6.L93.B0"' },
-                    { name: 'MPEG-2', mime: 'video/mp4; codecs="mp4v.20.8"' },
-                    { name: 'MPEG-4', mime: 'video/mp4; codecs="mp4v.20.240"' },
-                    { name: 'H.263', mime: 'video/3gpp; codecs="mp4v.20.8"' },
-                    { name: 'VP8', mime: 'video/webm; codecs="vp8"' },
-                    { name: 'VP9', mime: 'video/webm; codecs="vp9"' },
-                    { name: 'AV1', mime: 'video/webm; codecs="av1"' }
-                ];
-                
-                const resultsBody = document.querySelector('#codecSupportResults tbody');
-                resultsBody.innerHTML = '';
-                
-                codecs.forEach(codec => {
-                    const canPlayResult = video.canPlayType(codec.mime);
-                    let mediaSourceResult = '未知';
-                    
-                    if (typeof MediaSource !== 'undefined') {
-                        mediaSourceResult = MediaSource.isTypeSupported(codec.mime) ? '支持' : '不支持';
-                    }
-                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${codec.name}</td>
-                        <td><code>${codec.mime}</code></td>
-                        <td><span class="compatibility-badge ${getBadgeClass(canPlayResult)}">${getStatusText(canPlayResult)}</span></td>
-                        <td><span class="compatibility-badge ${mediaSourceResult === '支持' ? 'compatible' : 'incompatible'}">${mediaSourceResult}</span></td>
+                        <td colspan="3" style="text-align: center;">MediaSource API不可用</td>
                     `;
-                    resultsBody.appendChild(row);
-                });
-            }
-            
-            function testFullAPI() {
-                // 执行所有测试
-                testCanPlayType();
-                testMediaSourceAPI();
-                testCodecSupport();
+                    codecResultsBody.appendChild(row);
+                }
                 
-                // 汇总结果
-                const resultsDiv = document.getElementById('fullApiResults');
-                resultsDiv.innerHTML = `
-                    <div class="status-item">
-                        <span class="status-label">HTML5 Video元素:</span>
-                        <span class="status-value"><span class="compatibility-badge compatible">支持</span></span>
+                // 测试容器格式支持
+                const containerResultsBody = document.querySelector('#containerSupportTable tbody');
+                containerResultsBody.innerHTML = '';
+                
+                let containerSupported = 0;
+                let containerUnsupported = 0;
+                
+                if (mediaSourceSupport) {
+                    Object.keys(containerFormats).forEach(containerKey => {
+                        const container = containerFormats[containerKey];
+                        // 为容器格式添加一个常见的编码格式进行测试
+                        let testMime = container.mime;
+                        if (containerKey === 'mp4') {
+                            testMime = 'video/mp4; codecs="avc1.42E01E"';
+                        } else if (containerKey === 'webm') {
+                            testMime = 'video/webm; codecs="vp8"';
+                        } else if (containerKey === 'mov') {
+                            testMime = 'video/quicktime; codecs="avc1.42E01E"';
+                        }
+                        
+                        const supported = MediaSource.isTypeSupported(testMime);
+                        
+                        // 统计结果
+                        if (supported) containerSupported++;
+                        else containerUnsupported++;
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${container.name}</td>
+                            <td><code>${testMime}</code></td>
+                            <td><span class="compatibility-badge ${supported ? 'compatible' : 'incompatible'}">${supported ? '支持' : '不支持'}</span></td>
+                        `;
+                        containerResultsBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="3" style="text-align: center;">MediaSource API不可用</td>
+                    `;
+                    containerResultsBody.appendChild(row);
+                }
+                
+                // 更新统计信息
+                const totalContainer = Object.keys(containerFormats).length;
+                const totalCodec = Object.keys(videoCodecs).length;
+                
+                document.getElementById('mediaSourceSummary').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${totalContainer}</div>
+                        <div class="stat-label">容器格式总数</div>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">MediaSource API:</span>
-                        <span class="status-value" id="fullMediaSourceResult">检测中...</span>
+                    <div class="stat-card">
+                        <div class="stat-number">${containerSupported}</div>
+                        <div class="stat-label">容器格式支持</div>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">支持的编码格式:</span>
-                        <span class="status-value" id="supportedCodecs">计算中...</span>
+                    <div class="stat-card">
+                        <div class="stat-number">${containerUnsupported}</div>
+                        <div class="stat-label">容器格式不支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${totalCodec}</div>
+                        <div class="stat-label">编码格式总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${codecSupported}</div>
+                        <div class="stat-label">编码格式支持</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${codecUnsupported}</div>
+                        <div class="stat-label">编码格式不支持</div>
                     </div>
                 `;
+            }
+            
+            function getCanPlayTypeStatus(result) {
+                let statusBadge = '';
+                let statusText = '';
                 
-                // 延迟更新汇总结果
-                setTimeout(() => {
-                    document.getElementById('fullMediaSourceResult').innerHTML = 
-                        typeof MediaSource !== 'undefined' ? 
-                        '<span class="compatibility-badge compatible">支持</span>' : 
-                        '<span class="compatibility-badge incompatible">不支持</span>';
-                    
-                    // 计算支持的编码格式数量
-                    const video = document.createElement('video');
-                    const testCodecs = [
-                        'video/mp4; codecs="avc1.42E01E"',
-                        'video/mp4; codecs="hev1.1.6.L93.B0"',
-                        'video/webm; codecs="vp8"',
-                        'video/webm; codecs="vp9"',
-                        'video/webm; codecs="av1"'
-                    ];
-                    
-                    let supportedCount = 0;
-                    testCodecs.forEach(mime => {
-                        if (video.canPlayType(mime) === 'probably') {
-                            supportedCount++;
-                        }
-                    });
-                    
-                    document.getElementById('supportedCodecs').textContent = 
-                        `${supportedCount}/${testCodecs.length} 种主要编码格式`;
-                }, 1000);
-            }
-            
-            function getBadgeClass(result) {
                 switch(result) {
-                    case 'probably': return 'compatible';
-                    case 'maybe': return 'unknown';
-                    case '': return 'incompatible';
-                    default: return 'unknown';
+                    case 'probably':
+                        statusBadge = 'compatible';
+                        statusText = '很可能支持';
+                        break;
+                    case 'maybe':
+                        statusBadge = 'unknown';
+                        statusText = '可能支持';
+                        break;
+                    case '':
+                        statusBadge = 'incompatible';
+                        statusText = '不支持';
+                        break;
+                    default:
+                        statusBadge = 'unknown';
+                        statusText = result;
                 }
-            }
-            
-            function getStatusText(result) {
-                switch(result) {
-                    case 'probably': return '很可能支持';
-                    case 'maybe': return '可能支持';
-                    case '': return '不支持';
-                    default: return result;
-                }
+                
+                return { statusBadge, statusText };
             }
         });
     </script>

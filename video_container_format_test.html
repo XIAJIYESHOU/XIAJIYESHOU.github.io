@@ -241,6 +241,10 @@
                     <h3>播放状态</h3>
                     <div class="status-info">
                         <div class="status-item">
+                            <span class="status-label">文件名:</span>
+                            <span class="status-value" id="fileName">-</span>
+                        </div>
+                        <div class="status-item">
                             <span class="status-label">容器格式:</span>
                             <span class="status-value" id="containerFormat">MP4</span>
                         </div>
@@ -274,6 +278,7 @@
             const formatOptionsContainer = document.getElementById('formatOptions');
             const testBtn = document.querySelector('.test-btn');
             const urlInput = document.querySelector('.url-input');
+            const fileNameEl = document.getElementById('fileName');
             const containerFormatEl = document.getElementById('containerFormat');
             const videoCodecEl = document.getElementById('videoCodec');
             const audioCodecEl = document.getElementById('audioCodec');
@@ -284,18 +289,16 @@
             
             // 本地视频源映射 - 只存储文件名
             const videoSources = {
-                'mp4': 'mp4-avc-aac.mp4',
-                'webm': 'webm-vp8-opus.webm',
-                'flv': 'flv-avc-aac.flv',
+                'mp4': 'mp4-avc-none.mp4',
+                'webm': 'webm-vp8-none.webm',
+                'flv': 'flv-avc-none.flv',
                 'gif': 'gif-none-none.gif',
-                'm4v': 'm4v-avc-aac.m4v',
-                'mkv': 'mkv-avc-aac.mkv',
-                'mov': 'mov-avc-aac.mov',
-                'mpegps': 'mpegps-mpeg2-mp2.mpg',
-                'ts': 'mpegts-avc-aac.ts',
-                'wmv': 'wmv-wmv2-wmav2.wmv',
-                'ogv': 'ogv-vp8-vorbis.ogv',
-                'avi': 'avi-avc-aac.avi',
+                'm4v': 'm4v-avc-none.m4v',
+                'mkv': 'mkv-avc-none.mkv',
+                'mov': 'mov-avc-none.mov',
+                'mpegps': 'mpegps-avc-none.mpg',
+                'ts': 'mpegts-avc-none.ts',
+                'avi': 'avi-avc-none.avi',
             };
             
             // 从文件名解析格式信息的函数
@@ -376,6 +379,9 @@
             function updateVideoSource() {
                 const filename = videoSources[currentFormat];
                 
+                // 显示文件名
+                fileNameEl.textContent = filename;
+                
                 // 从文件名解析格式信息
                 const formatInfo = parseFormatInfo(filename);
                 
@@ -415,6 +421,9 @@
             
             // 测试自定义视频
             function testCustomVideo(url) {
+                // 显示自定义URL
+                fileNameEl.textContent = url;
+                
                 containerFormatEl.textContent = '未知';
                 videoCodecEl.textContent = '未知';
                 audioCodecEl.textContent = '未知';
@@ -451,6 +460,4 @@
         });
     </script>
 </body>
-
 </html>
-

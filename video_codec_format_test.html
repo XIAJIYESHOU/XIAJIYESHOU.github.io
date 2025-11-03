@@ -242,6 +242,10 @@
                     <h3>播放状态</h3>
                     <div class="status-info">
                         <div class="status-item">
+                            <span class="status-label">文件名:</span>
+                            <span class="status-value" id="fileName">-</span>
+                        </div>
+                        <div class="status-item">
                             <span class="status-label">视频编码:</span>
                             <span class="status-value" id="videoCodec">H.264</span>
                         </div>
@@ -271,6 +275,7 @@
             const codecOptionsContainer = document.getElementById('codecOptions');
             const testBtn = document.querySelector('.test-btn');
             const urlInput = document.querySelector('.url-input');
+            const fileNameEl = document.getElementById('fileName');
             const videoCodecEl = document.getElementById('videoCodec');
             const audioCodecEl = document.getElementById('audioCodec');
             const playStatusEl = document.getElementById('playStatus');
@@ -280,15 +285,14 @@
             
             // 视频源映射 - 只存储文件名
             const videoSources = {
-                'avc': 'mp4-avc-aac.mp4',
-                'hevc': 'mp4-hevc-aac.mp4',
-                'mpeg4': 'mp4-mpeg4-aac.mp4',
-                'mpeg2': 'mpegps-mpeg2-mp2.mpg',
-                'vp8': 'webm-vp8-opus.webm',
-                'vp9': 'webm-vp9-opus.webm',
-                'av1': 'webm-av1-opus.webm',
-                'wmv2': 'wmv-wmv2-wmav2.wmv',
-                'vvc': 'mp4-vvc-aac.mp4',
+                'vvc': 'mp4-vvc-none.mp4',
+                'avc': 'mp4-avc-none.mp4',
+                'hevc': 'mp4-hevc-none.mp4',
+                'mpeg4': 'mp4-mpeg4-none.mp4',
+                'mpeg2': 'mp4-mpeg2-none.mp4',
+                'vp8': 'webm-vp8-none.webm',
+                'vp9': 'webm-vp9-none.webm',
+                'av1': 'webm-av1-none.webm',
             };
                         
             // 从文件名解析格式信息的函数
@@ -367,6 +371,9 @@
             function updateVideoSource() {
                 const filename = videoSources[currentCodec];
                 
+                // 显示文件名
+                fileNameEl.textContent = filename;
+                
                 // 从文件名解析格式信息
                 const formatInfo = parseFormatInfo(filename);
                 
@@ -405,6 +412,9 @@
             
             // 测试自定义视频
             function testCustomVideo(url) {
+                // 显示自定义URL
+                fileNameEl.textContent = url;
+                
                 videoCodecEl.textContent = '未知';
                 audioCodecEl.textContent = '未知';
                 playStatusEl.textContent = '加载中...';

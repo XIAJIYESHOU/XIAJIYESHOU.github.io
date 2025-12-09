@@ -1,77 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>双 HLS 流播放器</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>原生双HLS播放器</title>
     <style>
-        body {
-            margin: 0;
-            padding: 10px;
-            font-family: monospace;
-            background: #000;
-            color: #fff;
-        }
-        #container {
-            display: flex;
-            gap: 10px;
-        }
-        video {
-            width: 50%;
-            background: #111;
-        }
-        input {
-            width: calc(50% - 20px);
-            margin: 5px;
-            padding: 8px;
-            background: #222;
-            color: #0f0;
-            border: 1px solid #444;
-            font-family: monospace;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            background: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
+        body { margin: 20px; background: #000; color: #fff; }
+        .videos { display: flex; gap: 10px; }
+        video { width: 50%; background: #111; }
+        .controls { margin: 10px 0; }
+        input { width: 45%; margin: 5px; padding: 8px; }
+        button { padding: 10px; background: #06c; color: #fff; border: none; }
     </style>
 </head>
 <body>
-<input id="stream1" placeholder="HLS 流地址 1" value="http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8">
-<input id="stream2" placeholder="HLS 流地址 2" value="https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/hls/xgplayer-demo.m3u8">
-<button onclick="playAll()">同时播放</button>
-
-<div id="container">
-    <video id="video1" controls></video>
-    <video id="video2" controls></video>
+<div class="controls">
+    <input id="url1" value="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8">
+    <input id="url2" value="https://bitdash-a.akamaihd.net/s/MVPT-1.1.0/playlists/ll-hls/big_buck_bunny_1080p_hls.m3u8">
+    <button onclick="play()">播放</button>
+</div>
+<div class="videos">
+    <video id="v1" controls></video>
+    <video id="v2" controls></video>
 </div>
 
 <script>
-    function playAll() {
-        const stream1 = document.getElementById('stream1').value;
-        const stream2 = document.getElementById('stream2').value;
+    function play() {
+        // 检测是否支持HLS
+        const v1 = document.getElementById('v1');
+        const canPlay = v1.canPlayType('application/vnd.apple.mpegurl');
 
-        // 播放第一个流
-        const video1 = document.getElementById('video1');
-        if (Hls.isSupported()) {
-            const hls1 = new Hls();
-            hls1.loadSource(stream1);
-            hls1.attachMedia(video1);
-        } else if (video1.canPlayType('application/vnd.apple.mpegurl')) {
-            video1.src = stream1;
-        }
-
-        // 播放第二个流
-        const video2 = document.getElementById('video2');
-        if (Hls.isSupported()) {
-            const hls2 = new Hls();
-            hls2.loadSource(stream2);
-            hls2.attachMedia(video2);
-        } else if (video2.canPlayType('application/vnd.apple.mpegurl')) {
-            video2.src = stream2;
+        if (canPlay) {
+            // Safari浏览器原生支持HLS
+            v1.src = document.getElementById('url1').value;
+            document.getElementById('v2').src = document.getElementById('url2').value;
+        } else {
+            alert('当前浏览器不支持原生HLS播放，请使用Safari浏览器');
         }
     }
 </script>

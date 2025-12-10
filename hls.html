@@ -30,18 +30,13 @@
     function play() {
         // 检测是否支持HLS
         const v1 = document.getElementById('v1');
-        const canPlay = v1.canPlayType('application/vnd.apple.mpegurl');
+        v1.src = document.getElementById('url1').value;
+        // document.getElementById('v2').src = document.getElementById('url2').value;
 
-        if (canPlay) {
-            // Safari浏览器原生支持HLS
-            v1.src = document.getElementById('url1').value;
-            // document.getElementById('v2').src = document.getElementById('url2').value;
-        } else {
-            alert('当前浏览器不支持原生HLS播放，请使用Safari浏览器');
-        }
     }
 </script>
 </body>
 </html>
+
 
 

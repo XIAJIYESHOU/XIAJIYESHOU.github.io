@@ -23,7 +23,7 @@
 </div>
 <div class="videos">
     <video id="v1" controls></video>
-    <video id="v2" controls></video>
+    <!-- <video id="v2" controls></video> -->
 </div>
 
 <script>
@@ -35,7 +35,7 @@
         if (canPlay) {
             // Safari浏览器原生支持HLS
             v1.src = document.getElementById('url1').value;
-            document.getElementById('v2').src = document.getElementById('url2').value;
+            // document.getElementById('v2').src = document.getElementById('url2').value;
         } else {
             alert('当前浏览器不支持原生HLS播放，请使用Safari浏览器');
         }
@@ -43,4 +43,5 @@
 </script>
 </body>
 </html>
+
 
